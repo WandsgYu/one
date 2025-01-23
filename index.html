@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGB & Profit</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1e1e2f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .label {
+            font-size: 20px;
+            color: #87ceeb;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div class="value" id="bgbPrice">$0.00</div>
+    </div>
+    <div>
+        <div class="value" id="totalProfitCny">0</div>
+    </div>
+
+    <script>
+        const exchangeRate = 7.21; // Updated USD to CNY exchange rate
+        const additionalUsd = 328; // Additional USD to be added to total profit
+        const updateInterval = 500; // ms
+        const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
+
+        // Position data for profit calculations
+        const positions = [
+            { symbol: "MELANIA", quantity: -473.1, openPrice: 3.471, isShort: true },
+            { symbol: "TRUMP", quantity: 44.7, openPrice: 37.05, isShort: false },
+            { symbol: "BGB", quantity: 387, openPrice: 7.156, isShort: false }
+        ];
+
+        // Fetch price for a specific symbol
+        async function fetchPrice(symbol) {
+            try {
+                const response = await fetch(`${apiUrlBase}${symbol}USDT_UMCBL`);
+                const data = await response.json();
+                return parseFloat(data.data.last);
+            } catch (error) {
+                console.error(`Error fetching price for ${symbol}:`, error);
+                return null;
+            }
+        }
+
+        // Update BGB price, calculate total profit, and display final value
+        async function updateData() {
+            // Fetch BGB price
+            const bgbPrice = await fetchPrice("BGB");
+            if (bgbPrice !== null) {
+                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(2)}`;
+            }
+
+            // Calculate total profit in USD
+            let totalProfitUsd = 0;
+
+            for (const position of positions) {
+                const currentPrice = await fetchPrice(position.symbol);
+                if (currentPrice !== null) {
+                    const priceDifference = position.isShort
+                        ? position.openPrice - currentPrice
+                        : currentPrice - position.openPrice;
+                    const profit = priceDifference * Math.abs(position.quantity);
+                    totalProfitUsd += profit;
+                }
+            }
+
+            // Add fixed additional profit
+            totalProfitUsd += additionalUsd;
+
+            // Convert total profit to CNY
+            const totalProfitCny = totalProfitUsd * exchangeRate;
+
+            // Update total profit display
+            document.getElementById("totalProfitCny").textContent = `${Math.floor(totalProfitCny)}`;
+
+            // Update page title with final total value
+            document.title = `¥${Math.floor(totalProfitCny)}`;
+        }
+
+        // Update data at the defined interval
+        setInterval(updateData, updateInterval);
+
+        // Initial load
+        updateData();
+    </script>
+</body>
+
+</html>
