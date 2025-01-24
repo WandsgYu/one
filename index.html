@@ -42,16 +42,14 @@
     </div>
 
     <script>
-        const exchangeRate = 7.21; // Updated USD to CNY exchange rate
-        const additionalUsd = 328; // Additional USD to be added to total profit
+        const exchangeRate = 7.22; // Updated USD to CNY exchange rate
+        const additionalUsd = 310; // Additional USD to be added to total profit
         const updateInterval = 500; // ms
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
         // Position data for profit calculations
         const positions = [
-            { symbol: "MELANIA", quantity: -473.1, openPrice: 3.471, isShort: true },
-            { symbol: "TRUMP", quantity: 44.7, openPrice: 37.05, isShort: false },
-            { symbol: "BGB", quantity: 387, openPrice: 7.156, isShort: false }
+            { symbol: "BGB", quantity: 276, openPrice: 7.337, isShort: false }
         ];
 
         // Fetch price for a specific symbol
@@ -71,7 +69,7 @@
             // Fetch BGB price
             const bgbPrice = await fetchPrice("BGB");
             if (bgbPrice !== null) {
-                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(2)}`;
+                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(3)}`;
             }
 
             // Calculate total profit in USD
