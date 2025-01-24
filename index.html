@@ -21,7 +21,7 @@
         }
 
         .value {
-            font-size: 48px;
+            font-size: 100px;
             font-weight: bold;
             margin: 10px 0;
         }
@@ -69,7 +69,7 @@
             // Fetch BGB price
             const bgbPrice = await fetchPrice("BGB");
             if (bgbPrice !== null) {
-                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(3)}`;
+                document.getElementById("bgbPrice").textContent = `${bgbPrice.toFixed(3)}`;
             }
 
             // Calculate total profit in USD
@@ -96,7 +96,7 @@
             document.getElementById("totalProfitCny").textContent = `${Math.floor(totalProfitCny)}`;
 
             // Update page title with final total value
-            document.title = `¥${Math.floor(totalProfitCny)}`;
+            document.title = `${bgbPrice.toFixed(3)} ${Math.floor(totalProfitCny)}`;
         }
 
         // Update data at the defined interval
