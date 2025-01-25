@@ -98,7 +98,7 @@
             document.getElementById("totalProfitCny").textContent = `${Math.floor(totalProfitCny)}`;
 
             // Update page title with final total value
-            document.title = `¥${Math.floor(totalProfitCny)}`;
+            document.title = `${bgbPrice.toFixed(3)} ${Math.floor(totalProfitCny)}`;
         }
 
         // Update data at the defined interval
