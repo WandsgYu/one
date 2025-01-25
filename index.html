@@ -21,7 +21,7 @@
         }
 
         .value {
-            font-size: 100px;
+            font-size: 48px;
             font-weight: bold;
             margin: 10px 0;
         }
@@ -42,14 +42,16 @@
     </div>
 
     <script>
-        const exchangeRate = 7.22; // Updated USD to CNY exchange rate
-        const additionalUsd = 310; // Additional USD to be added to total profit
+        const exchangeRate = 7.23; // Updated USD to CNY exchange rate
+        const additionalUsd = 381; // Additional USD to be added to total profit
         const updateInterval = 500; // ms
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
         // Position data for profit calculations
         const positions = [
-            { symbol: "BGB", quantity: 276, openPrice: 7.337, isShort: false }
+            { symbol: "MELANIA", quantity: 0, openPrice:2.92, isShort: true },
+            { symbol: "TRUMP", quantity: 0, openPrice: 38.8, isShort: false },
+            { symbol: "BGB", quantity:0, openPrice: 7.156, isShort: false }
         ];
 
         // Fetch price for a specific symbol
@@ -69,7 +71,7 @@
             // Fetch BGB price
             const bgbPrice = await fetchPrice("BGB");
             if (bgbPrice !== null) {
-                document.getElementById("bgbPrice").textContent = `${bgbPrice.toFixed(3)}`;
+                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(3)}`;
             }
 
             // Calculate total profit in USD
@@ -96,7 +98,7 @@
             document.getElementById("totalProfitCny").textContent = `${Math.floor(totalProfitCny)}`;
 
             // Update page title with final total value
-            document.title = `${bgbPrice.toFixed(3)} ${Math.floor(totalProfitCny)}`;
+            document.title = `¥${Math.floor(totalProfitCny)}`;
         }
 
         // Update data at the defined interval
