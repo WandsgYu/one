@@ -4,57 +4,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGB & Profit</title>
+    <title>Profit Tracker</title>
     <style>
+        /* 全局样式 */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background: #1e1e2f;
-            color: #fff;
+            background: linear-gradient(135deg, #1e1e2f, #2c2c3f);
+            color: #ffffff;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 容器样式 */
+        .container {
+            background: rgba(44, 44, 63, 0.9);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 90%;
+            max-width: 1200px; /* 增大最大宽度 */
+            min-width: 500px;
+            height: auto;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px; /* 增大间距 */
+            backdrop-filter: blur(10px);
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background: rgba(57, 57, 77, 0.8);
+            border-radius: 12px;
+            padding: 32px; /* 增大内边距 */
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 比例卡片样式 */
+        .ratio-card {
             text-align: center;
         }
 
-        .value {
-            font-size: 130px;
-            font-weight: bold;
-            margin: 10px 0;
+        .ratio-card h2 {
+            margin: 0;
+            font-size: 48px; /* 增大字体 */
+            font-weight: 600;
+            color: #ffd700;
         }
 
-        .label {
-            font-size: 20px;
+        .ratio-card span {
+            font-size: 64px; /* 增大字体 */
+            font-weight: bold;
             color: #87ceeb;
+        }
+
+        /* 利润卡片样式 */
+        .profit-card {
+            position: relative;
+        }
+
+        .profit-card h2 {
+            margin: 0 0 24px 0; /* 增大间距 */
+            font-size: 40px; /* 增大字体 */
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .profit-card .price {
+            position: absolute;
+            top: 32px; /* 调整位置 */
+            right: 32px; /* 调整位置 */
+            font-size: 36px; /* 增大字体 */
+            color: #87ceeb;
+        }
+
+        .profit-card p {
+            margin: 0;
+            font-size: 36px; /* 增大字体 */
+            color: #ffffff;
+        }
+
+        /* 总利润样式 */
+        .total-profit {
+            text-align: center;
+        }
+
+        .total-profit p {
+            margin: 0;
+            font-size: 56px; /* 增大字体 */
+            font-weight: bold;
+            color: #32cd32;
+        }
+
+        .converted-profit {
+            margin-top: 16px; /* 增大间距 */
+            font-size: 40px; /* 增大字体 */
+            color: #87ceeb;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+                gap: 24px;
+            }
+
+            .ratio-card h2 {
+                font-size: 36px;
+            }
+
+            .ratio-card span {
+                font-size: 48px;
+            }
+
+            .profit-card h2 {
+                font-size: 32px;
+            }
+
+            .profit-card .price {
+                font-size: 28px;
+            }
+
+            .profit-card p {
+                font-size: 28px;
+            }
+
+            .total-profit p {
+                font-size: 40px;
+            }
+
+            .converted-profit {
+                font-size: 28px;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div>
-        <div class="value" id="bgbPrice">$0.00</div>
-    </div>
-    <div>
-        <div class="value" id="totalProfitCny">0</div>
+    <div class="container">
+        <!-- 总利润卡片 -->
+        <div class="card total-profit">
+            <p id="totalProfit">Total Profit (USD): Calculating...</p>
+            <p class="converted-profit" id="totalProfitCny">Converted to CNY: Calculating...</p>
+        </div>
+
+        <!-- MELANIA 利润卡片 -->
+        <div class="card profit-card" id="melaniaProfit">
+            <h2>MELANIA Position</h2>
+            <span class="price" id="melaniaPrice">Price: $0.00</span>
+            <p>Profit: Calculating...</p>
+        </div>
+
+        <!-- TRUMP 利润卡片 -->
+        <div class="card profit-card" id="trumpProfit">
+            <h2>TRUMP Position</h2>
+            <span class="price" id="trumpPrice">Price: $0.00</span>
+            <p>Profit: Calculating...</p>
+        </div>
+
+        <!-- BGB 利润卡片 -->
+        <div class="card profit-card" id="bgbProfit">
+            <h2>BGB Position</h2>
+            <span class="price" id="bgbPrice">Price: $0.00</span>
+            <p>Profit: Calculating...</p>
+        </div>
+
+        <!-- PNUT 利润卡片 -->
+        <div class="card profit-card" id="pnutProfit">
+            <h2>PNUT Position</h2>
+            <span class="price" id="pnutPrice">Price: $0.00</span>
+            <p>Profit: Calculating...</p>
+        </div>
+
+        <!-- 比例卡片 -->
+        <div class="card ratio-card">
+            <h2>TRUMP / MELANIA: <span id="trumpMelaniaRatio">Calculating...</span></h2>
+        </div>
     </div>
 
     <script>
-        const exchangeRate = 7.23; // Updated USD to CNY exchange rate
-        const additionalUsd = 381; // Additional USD to be added to total profit
+        const exchangeRate = 7.21; // USD to CNY
+        const melania = { symbol: "MELANIA", position: -204.2, entryPrice: 2.446, isShort: true };
+        const trump = { symbol: "TRUMP", position: -39.4, entryPrice: 27.27, isShort: true };
+        const bgb = { symbol: "BGB", position: 263, entryPrice: 7.363, isShort: false };
+        const pnut = { symbol: "PNUT", position: -1863, entryPrice: 0.2701, isShort: true };
         const updateInterval = 500; // ms
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
-        // Position data for profit calculations
-        const positions = [
-            { symbol: "MELANIA", quantity: 0, openPrice:2.92, isShort: true },
-            { symbol: "TRUMP", quantity: 0, openPrice: 38.8, isShort: false },
-            { symbol: "BGB", quantity:0, openPrice: 7.156, isShort: false }
-        ];
-
-        // Fetch price for a specific symbol
         async function fetchPrice(symbol) {
             try {
                 const response = await fetch(`${apiUrlBase}${symbol}USDT_UMCBL`);
@@ -66,46 +214,79 @@
             }
         }
 
-        // Update BGB price, calculate total profit, and display final value
-        async function updateData() {
-            // Fetch BGB price
-            const bgbPrice = await fetchPrice("BGB");
-            if (bgbPrice !== null) {
-                document.getElementById("bgbPrice").textContent = `$${bgbPrice.toFixed(3)}`;
-            }
-
-            // Calculate total profit in USD
+        async function updateProfit() {
             let totalProfitUsd = 0;
 
-            for (const position of positions) {
-                const currentPrice = await fetchPrice(position.symbol);
-                if (currentPrice !== null) {
-                    const priceDifference = position.isShort
-                        ? position.openPrice - currentPrice
-                        : currentPrice - position.openPrice;
-                    const profit = priceDifference * Math.abs(position.quantity);
-                    totalProfitUsd += profit;
-                }
+            // Update MELANIA profit
+            const melaniaPrice = await fetchPrice(melania.symbol);
+            if (melaniaPrice !== null) {
+                const melaniaProfit = melania.isShort
+                    ? (melania.entryPrice - melaniaPrice) * Math.abs(melania.position)
+                    : (melaniaPrice - melania.entryPrice) * melania.position;
+                totalProfitUsd += melaniaProfit;
+                document.getElementById("melaniaPrice").textContent = `Price: $${melaniaPrice.toFixed(2)}`;
+                document.getElementById("melaniaProfit").querySelector("p").textContent =
+                    `Profit: $${melaniaProfit.toFixed(2)}`;
             }
 
-            // Add fixed additional profit
-            totalProfitUsd += additionalUsd;
+            // Update TRUMP profit
+            const trumpPrice = await fetchPrice(trump.symbol);
+            if (trumpPrice !== null) {
+                const trumpProfit = trump.isShort
+                    ? (trump.entryPrice - trumpPrice) * Math.abs(trump.position)
+                    : (trumpPrice - trump.entryPrice) * trump.position;
+                totalProfitUsd += trumpProfit;
+                document.getElementById("trumpPrice").textContent = `Price: $${trumpPrice.toFixed(2)}`;
+                document.getElementById("trumpProfit").querySelector("p").textContent =
+                    `Profit: $${trumpProfit.toFixed(2)}`;
+            }
 
-            // Convert total profit to CNY
-            const totalProfitCny = totalProfitUsd * exchangeRate;
+            // Update BGB profit
+            const bgbPrice = await fetchPrice(bgb.symbol);
+            if (bgbPrice !== null) {
+                const bgbProfit = bgb.isShort
+                    ? (bgb.entryPrice - bgbPrice) * bgb.position
+                    : (bgbPrice - bgb.entryPrice) * bgb.position;
+                totalProfitUsd += bgbProfit;
+                document.getElementById("bgbPrice").textContent = `Price: $${bgbPrice.toFixed(2)}`;
+                document.getElementById("bgbProfit").querySelector("p").textContent =
+                    `Profit: $${bgbProfit.toFixed(2)}`;
+            }
 
-            // Update total profit display
-            document.getElementById("totalProfitCny").textContent = `${Math.floor(totalProfitCny)}`;
+            // Update PNUT profit
+            const pnutPrice = await fetchPrice(pnut.symbol);
+            if (pnutPrice !== null) {
+                const pnutProfit = pnut.isShort
+                    ? (pnut.entryPrice - pnutPrice) * Math.abs(pnut.position)
+                    : (pnutPrice - pnut.entryPrice) * pnut.position;
+                totalProfitUsd += pnutProfit;
+                document.getElementById("pnutPrice").textContent = `Price: $${pnutPrice.toFixed(2)}`;
+                document.getElementById("pnutProfit").querySelector("p").textContent =
+                    `Profit: $${pnutProfit.toFixed(2)}`;
+            }
 
-            // Update page title with final total value
-            document.title = `${bgbPrice.toFixed(3)} ${Math.floor(totalProfitCny)}`;
+            // Update TRUMP/MELANIA ratio
+            if (melaniaPrice !== null && trumpPrice !== null) {
+                const ratio = (trumpPrice / melaniaPrice).toFixed(2);
+                document.getElementById("trumpMelaniaRatio").textContent = ratio;
+            }
+
+            // Update total profit
+            const totalProfitCny = totalProfitUsd * exchangeRate+2402;
+            document.getElementById("totalProfit").textContent =
+                `Total Profit (USD): $${totalProfitUsd.toFixed(0)}`;
+            document.getElementById("totalProfitCny").textContent =
+                `Converted to CNY: ¥${totalProfitCny.toFixed(0)}`;
+
+            // Update title with CNY value
+            document.title = `${totalProfitCny.toFixed(0)}`;
         }
 
-        // Update data at the defined interval
-        setInterval(updateData, updateInterval);
+        // Update profits every 0.5 seconds
+        setInterval(updateProfit, updateInterval);
 
         // Initial load
-        updateData();
+        updateProfit();
     </script>
 </body>
 
