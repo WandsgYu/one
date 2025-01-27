@@ -52,24 +52,6 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
-        /* 比例卡片样式 */
-        .ratio-card {
-            text-align: center;
-        }
-
-        .ratio-card h2 {
-            margin: 0;
-            font-size: 48px; /* 增大字体 */
-            font-weight: 600;
-            color: #ffd700;
-        }
-
-        .ratio-card span {
-            font-size: 64px; /* 增大字体 */
-            font-weight: bold;
-            color: #87ceeb;
-        }
-
         /* 利润卡片样式 */
         .profit-card {
             position: relative;
@@ -121,14 +103,6 @@
                 gap: 24px;
             }
 
-            .ratio-card h2 {
-                font-size: 36px;
-            }
-
-            .ratio-card span {
-                font-size: 48px;
-            }
-
             .profit-card h2 {
                 font-size: 32px;
             }
@@ -160,20 +134,6 @@
             <p class="converted-profit" id="totalProfitCny">Converted to CNY: Calculating...</p>
         </div>
 
-        <!-- MELANIA 利润卡片 -->
-        <div class="card profit-card" id="melaniaProfit">
-            <h2>MELANIA Position</h2>
-            <span class="price" id="melaniaPrice">Price: $0.00</span>
-            <p>Profit: Calculating...</p>
-        </div>
-
-        <!-- TRUMP 利润卡片 -->
-        <div class="card profit-card" id="trumpProfit">
-            <h2>TRUMP Position</h2>
-            <span class="price" id="trumpPrice">Price: $0.00</span>
-            <p>Profit: Calculating...</p>
-        </div>
-
         <!-- BGB 利润卡片 -->
         <div class="card profit-card" id="bgbProfit">
             <h2>BGB Position</h2>
@@ -188,18 +148,19 @@
             <p>Profit: Calculating...</p>
         </div>
 
-        <!-- 比例卡片 -->
-        <div class="card ratio-card">
-            <h2>TRUMP / MELANIA: <span id="trumpMelaniaRatio">Calculating...</span></h2>
+        <!-- MEME 利润卡片 -->
+        <div class="card profit-card" id="memeProfit">
+            <h2>MEME Position</h2>
+            <span class="price" id="memePrice">Price: $0.00</span>
+            <p>Profit: Calculating...</p>
         </div>
     </div>
 
     <script>
         const exchangeRate = 7.21; // USD to CNY
-        const melania = { symbol: "MELANIA", position: -204.2, entryPrice: 2.446, isShort: true };
-        const trump = { symbol: "TRUMP", position: -39.4, entryPrice: 27.27, isShort: true };
-        const bgb = { symbol: "BGB", position: 263, entryPrice: 7.363, isShort: false };
-        const pnut = { symbol: "PNUT", position: -1863, entryPrice: 0.2701, isShort: true };
+        const bgb = { symbol: "BGB", position: 407, entryPrice: 6.672, isShort: false };
+        const pnut = { symbol: "PNUT", position: -3193, entryPrice: 0.2503, isShort: true };
+        const meme = { symbol: "MEME", position: -115757, entryPrice: 0.006911, isShort: true };
         const updateInterval = 500; // ms
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
@@ -216,30 +177,6 @@
 
         async function updateProfit() {
             let totalProfitUsd = 0;
-
-            // Update MELANIA profit
-            const melaniaPrice = await fetchPrice(melania.symbol);
-            if (melaniaPrice !== null) {
-                const melaniaProfit = melania.isShort
-                    ? (melania.entryPrice - melaniaPrice) * Math.abs(melania.position)
-                    : (melaniaPrice - melania.entryPrice) * melania.position;
-                totalProfitUsd += melaniaProfit;
-                document.getElementById("melaniaPrice").textContent = `Price: $${melaniaPrice.toFixed(2)}`;
-                document.getElementById("melaniaProfit").querySelector("p").textContent =
-                    `Profit: $${melaniaProfit.toFixed(2)}`;
-            }
-
-            // Update TRUMP profit
-            const trumpPrice = await fetchPrice(trump.symbol);
-            if (trumpPrice !== null) {
-                const trumpProfit = trump.isShort
-                    ? (trump.entryPrice - trumpPrice) * Math.abs(trump.position)
-                    : (trumpPrice - trump.entryPrice) * trump.position;
-                totalProfitUsd += trumpProfit;
-                document.getElementById("trumpPrice").textContent = `Price: $${trumpPrice.toFixed(2)}`;
-                document.getElementById("trumpProfit").querySelector("p").textContent =
-                    `Profit: $${trumpProfit.toFixed(2)}`;
-            }
 
             // Update BGB profit
             const bgbPrice = await fetchPrice(bgb.symbol);
@@ -265,14 +202,20 @@
                     `Profit: $${pnutProfit.toFixed(2)}`;
             }
 
-            // Update TRUMP/MELANIA ratio
-            if (melaniaPrice !== null && trumpPrice !== null) {
-                const ratio = (trumpPrice / melaniaPrice).toFixed(2);
-                document.getElementById("trumpMelaniaRatio").textContent = ratio;
+            // Update MEME profit
+            const memePrice = await fetchPrice(meme.symbol);
+            if (memePrice !== null) {
+                const memeProfit = meme.isShort
+                    ? (meme.entryPrice - memePrice) * Math.abs(meme.position)
+                    : (memePrice - meme.entryPrice) * meme.position;
+                totalProfitUsd += memeProfit;
+                document.getElementById("memePrice").textContent = `Price: $${memePrice.toFixed(2)}`;
+                document.getElementById("memeProfit").querySelector("p").textContent =
+                    `Profit: $${memeProfit.toFixed(2)}`;
             }
 
             // Update total profit
-            const totalProfitCny = totalProfitUsd * exchangeRate+2402;
+            const totalProfitCny = totalProfitUsd * exchangeRate + 3382;
             document.getElementById("totalProfit").textContent =
                 `Total Profit (USD): $${totalProfitUsd.toFixed(0)}`;
             document.getElementById("totalProfitCny").textContent =
