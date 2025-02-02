@@ -21,25 +21,25 @@
         }
 
         /* 容器样式 */
-        .container {
+      .container {
             text-align: center;
         }
 
         /* 收益数字样式 */
-        .profit {
+      .profit {
             font-size: 120px;
             font-weight: bold;
             color: #32cd32; /* 默认绿色 */
             transition: color 0.3s ease;
         }
 
-        .profit.negative {
+      .profit.negative {
             color: #ff4500; /* 负收益时为红色 */
         }
 
         /* 响应式设计 */
         @media (max-width: 600px) {
-            .profit {
+          .profit {
                 font-size: 80px;
             }
         }
@@ -70,7 +70,7 @@
 
         async function updateProfit() {
             const btcPrice = await fetchPrice(btc.symbol);
-            if (btcPrice !== null) {
+            if (btcPrice!== null) {
                 // 计算美元收益
                 const btcProfitUsd = (btcPrice - btc.entryPrice) * btc.position;
                 // 转换为人民币
@@ -85,6 +85,9 @@
                 } else {
                     profitElement.classList.remove("negative");
                 }
+
+                // 更新页面标题
+                document.title = ` ¥${btcProfitCny.toFixed(0)}`;
             }
         }
 
