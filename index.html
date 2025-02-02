@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profit Tracker</title>
+    <title>BTC Profit Tracker</title>
     <style>
         /* 全局样式 */
         body {
@@ -22,105 +22,25 @@
 
         /* 容器样式 */
         .container {
-            background: rgba(44, 44, 63, 0.9);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            width: 90%;
-            max-width: 1200px; /* 增大最大宽度 */
-            min-width: 500px;
-            height: auto;
-            max-height: 90vh;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 32px; /* 增大间距 */
-            backdrop-filter: blur(10px);
-        }
-
-        /* 卡片通用样式 */
-        .card {
-            background: rgba(57, 57, 77, 0.8);
-            border-radius: 12px;
-            padding: 32px; /* 增大内边距 */
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        /* 利润卡片样式 */
-        .profit-card {
-            position: relative;
-        }
-
-        .profit-card h2 {
-            margin: 0 0 24px 0; /* 增大间距 */
-            font-size: 40px; /* 增大字体 */
-            font-weight: 600;
-            color: #ffd700;
-        }
-
-        .profit-card .price {
-            position: absolute;
-            top: 32px; /* 调整位置 */
-            right: 32px; /* 调整位置 */
-            font-size: 36px; /* 增大字体 */
-            color: #87ceeb;
-        }
-
-        .profit-card p {
-            margin: 0;
-            font-size: 36px; /* 增大字体 */
-            color: #ffffff;
-        }
-
-        /* 总利润样式 */
-        .total-profit {
             text-align: center;
         }
 
-        .total-profit p {
-            margin: 0;
-            font-size: 56px; /* 增大字体 */
+        /* 收益数字样式 */
+        .profit {
+            font-size: 120px;
             font-weight: bold;
-            color: #32cd32;
+            color: #32cd32; /* 默认绿色 */
+            transition: color 0.3s ease;
         }
 
-        .converted-profit {
-            margin-top: 16px; /* 增大间距 */
-            font-size: 40px; /* 增大字体 */
-            color: #87ceeb;
+        .profit.negative {
+            color: #ff4500; /* 负收益时为红色 */
         }
 
         /* 响应式设计 */
         @media (max-width: 600px) {
-            .container {
-                padding: 24px;
-                gap: 24px;
-            }
-
-            .profit-card h2 {
-                font-size: 32px;
-            }
-
-            .profit-card .price {
-                font-size: 28px;
-            }
-
-            .profit-card p {
-                font-size: 28px;
-            }
-
-            .total-profit p {
-                font-size: 40px;
-            }
-
-            .converted-profit {
-                font-size: 28px;
+            .profit {
+                font-size: 80px;
             }
         }
     </style>
@@ -128,40 +48,13 @@
 
 <body>
     <div class="container">
-        <!-- 总利润卡片 -->
-        <div class="card total-profit">
-            <p id="totalProfit">Total Profit (USD): Calculating...</p>
-            <p class="converted-profit" id="totalProfitCny">Converted to CNY: Calculating...</p>
-        </div>
-
-        <!-- BGB 利润卡片 -->
-        <div class="card profit-card" id="bgbProfit">
-            <h2>BGB Position</h2>
-            <span class="price" id="bgbPrice">Price: $0.00</span>
-            <p>Profit: Calculating...</p>
-        </div>
-
-        <!-- PNUT 利润卡片 -->
-        <div class="card profit-card" id="pnutProfit">
-            <h2>PNUT Position</h2>
-            <span class="price" id="pnutPrice">Price: $0.00</span>
-            <p>Profit: Calculating...</p>
-        </div>
-
-        <!-- MEME 利润卡片 -->
-        <div class="card profit-card" id="memeProfit">
-            <h2>MEME Position</h2>
-            <span class="price" id="memePrice">Price: $0.00</span>
-            <p>Profit: Calculating...</p>
-        </div>
+        <div class="profit" id="btcProfit">Calculating...</div>
     </div>
 
     <script>
-        const exchangeRate = 7.21; // USD to CNY
-        const bgb = { symbol: "BGB", position: 407, entryPrice: 6.672, isShort: false };
-        const pnut = { symbol: "PNUT", position: -3193, entryPrice: 0.2503, isShort: true };
-        const meme = { symbol: "MEME", position: -115757, entryPrice: 0.006911, isShort: true };
-        const updateInterval = 500; // ms
+        const btc = { symbol: "BTC", position: 5184, entryPrice: 100320.8 };
+        const exchangeRate = 7.2; // USD 转 CNY 的汇率
+        const updateInterval = 500; // 更新间隔时间（毫秒）
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
         async function fetchPrice(symbol) {
@@ -176,59 +69,29 @@
         }
 
         async function updateProfit() {
-            let totalProfitUsd = 0;
+            const btcPrice = await fetchPrice(btc.symbol);
+            if (btcPrice !== null) {
+                // 计算美元收益
+                const btcProfitUsd = (btcPrice - btc.entryPrice) * btc.position;
+                // 转换为人民币
+                const btcProfitCny = btcProfitUsd * exchangeRate;
 
-            // Update BGB profit
-            const bgbPrice = await fetchPrice(bgb.symbol);
-            if (bgbPrice !== null) {
-                const bgbProfit = bgb.isShort
-                    ? (bgb.entryPrice - bgbPrice) * bgb.position
-                    : (bgbPrice - bgb.entryPrice) * bgb.position;
-                totalProfitUsd += bgbProfit;
-                document.getElementById("bgbPrice").textContent = `Price: $${bgbPrice.toFixed(2)}`;
-                document.getElementById("bgbProfit").querySelector("p").textContent =
-                    `Profit: $${bgbProfit.toFixed(2)}`;
+                const profitElement = document.getElementById("btcProfit");
+                profitElement.textContent = `¥${btcProfitCny.toFixed(0)}`;
+
+                // 根据收益正负改变颜色
+                if (btcProfitCny < 0) {
+                    profitElement.classList.add("negative");
+                } else {
+                    profitElement.classList.remove("negative");
+                }
             }
-
-            // Update PNUT profit
-            const pnutPrice = await fetchPrice(pnut.symbol);
-            if (pnutPrice !== null) {
-                const pnutProfit = pnut.isShort
-                    ? (pnut.entryPrice - pnutPrice) * Math.abs(pnut.position)
-                    : (pnutPrice - pnut.entryPrice) * pnut.position;
-                totalProfitUsd += pnutProfit;
-                document.getElementById("pnutPrice").textContent = `Price: $${pnutPrice.toFixed(2)}`;
-                document.getElementById("pnutProfit").querySelector("p").textContent =
-                    `Profit: $${pnutProfit.toFixed(2)}`;
-            }
-
-            // Update MEME profit
-            const memePrice = await fetchPrice(meme.symbol);
-            if (memePrice !== null) {
-                const memeProfit = meme.isShort
-                    ? (meme.entryPrice - memePrice) * Math.abs(meme.position)
-                    : (memePrice - meme.entryPrice) * meme.position;
-                totalProfitUsd += memeProfit;
-                document.getElementById("memePrice").textContent = `Price: $${memePrice.toFixed(2)}`;
-                document.getElementById("memeProfit").querySelector("p").textContent =
-                    `Profit: $${memeProfit.toFixed(2)}`;
-            }
-
-            // Update total profit
-            const totalProfitCny = totalProfitUsd * exchangeRate + 3382;
-            document.getElementById("totalProfit").textContent =
-                `Total Profit (USD): $${totalProfitUsd.toFixed(0)}`;
-            document.getElementById("totalProfitCny").textContent =
-                `Converted to CNY: ¥${totalProfitCny.toFixed(0)}`;
-
-            // Update title with CNY value
-            document.title = `${totalProfitCny.toFixed(0)}`;
         }
 
-        // Update profits every 0.5 seconds
+        // 每0.5秒更新一次收益
         setInterval(updateProfit, updateInterval);
 
-        // Initial load
+        // 初始加载
         updateProfit();
     </script>
 </body>
