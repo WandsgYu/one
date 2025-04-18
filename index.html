@@ -118,13 +118,20 @@
             utterance.rate = 1; // 语速
             utterance.pitch = 1; // 音调
 
-            // 选择 zh-CN 语音
+            // 选择 zh-CN 女声
             if (voices.length === 0) {
                 voices = await getVoices();
             }
-            const zhVoice = voices.find((voice) => voice.lang.includes("zh-CN")) || voices[0];
-            if (zhVoice) {
-                utterance.voice = zhVoice;
+            // 优先选择女声（如 Ting-Ting 或 Siri Female）
+            const femaleVoice = voices.find((voice) => 
+                voice.lang.includes("zh-CN") && 
+                (voice.name.includes("Ting-Ting") || 
+                 voice.name.includes("Siri Female") || 
+                 voice.name.includes("Mei-Jia") || 
+                 voice.name.includes("Sin-ji"))
+            ) || voices.find((voice) => voice.lang.includes("zh-CN")) || voices[0];
+            if (femaleVoice) {
+                utterance.voice = femaleVoice;
             }
 
             // 添加错误处理
