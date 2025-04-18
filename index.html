@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -38,6 +37,22 @@
             color: #ff4500; /* 负收益时为红色 */
         }
 
+        /* 按钮样式 */
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #32cd32;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #28a428;
+        }
+
         /* 响应式设计 */
         @media (max-width: 600px) {
             .profit {
@@ -50,14 +65,18 @@
 <body>
     <div class="container">
         <div class="profit" id="btcProfit">Calculating...</div>
+        <button id="startSpeech">开始播报</button>
     </div>
 
     <script>
         const btc = { symbol: "meme", position: -275073, entryPrice: 0.0020565 };
         const exchangeRate = 7.35; // USD 转 CNY 的汇率
-        const updateInterval = 500; // 更新间隔时间（毫秒）
+        const updateInterval = 3000; // 更新间隔时间（毫秒）
         const speechInterval = 5000; // 播报间隔时间（毫秒）
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
+
+        let isSpeechStarted = false;
+        let voices = [];
 
         async function fetchPrice(symbol) {
             try {
@@ -70,20 +89,50 @@
             }
         }
 
-        function speakProfit(profit) {
+        function getVoices() {
+            return new Promise((resolve) => {
+                voices = window.speechSynthesis.getVoices();
+                if (voices.length) {
+                    resolve(voices);
+                    return;
+                }
+                window.speechSynthesis.onvoiceschanged = () => {
+                    voices = window.speechSynthesis.getVoices();
+                    resolve(voices);
+                };
+            });
+        }
+
+        async function speakProfit(profit) {
+            if (!isSpeechStarted) return; // 只有在用户启动播报后才执行
+
             const utterance = new SpeechSynthesisUtterance();
-            // 根据收益正负调整播报文本
+            // 只播报数字，负收益加“负”前缀
             if (profit < 0) {
-                utterance.text = `负 ${Math.abs(Math.round(profit))} `; // 使用“亏损”并取绝对值
+                utterance.text = `负 ${Math.abs(Math.round(profit))}`;
             } else {
-                utterance.text = ` ${Math.round(profit)} `;
+                utterance.text = `${Math.round(profit)}`;
             }
             utterance.lang = "zh-CN"; // 设置语言为中文
             utterance.volume = 1; // 音量
             utterance.rate = 1; // 语速
             utterance.pitch = 1; // 音调
 
-            // 播报
+            // 选择 zh-CN 语音
+            if (voices.length === 0) {
+                voices = await getVoices();
+            }
+            const zhVoice = voices.find((voice) => voice.lang.includes("zh-CN")) || voices[0];
+            if (zhVoice) {
+                utterance.voice = zhVoice;
+            }
+
+            // 添加错误处理
+            utterance.onerror = (event) => {
+                console.error("SpeechSynthesis error:", event.error);
+            };
+
+            window.speechSynthesis.cancel(); // 清除队列，防止堆积
             window.speechSynthesis.speak(utterance);
         }
 
@@ -114,58 +163,33 @@
             return null;
         }
 
-        // 每0.5秒更新一次收益
+        // 每3秒更新一次收益
         setInterval(updateProfit, updateInterval);
 
-        // 每5秒播报一次收益
-        setInterval(async () => {
-            const btcProfitCny = await updateProfit(); // 获取最新收益
-            if (btcProfitCny !== null) {
-                speakProfit(btcProfitCny); // 播报收益
+        // 用户点击“开始播报”按钮
+        document.getElementById("startSpeech").addEventListener("click", async () => {
+            if (!isSpeechStarted) {
+                isSpeechStarted = true;
+                // 初始加载语音
+                await getVoices();
+                // 立即播报一次
+                const btcProfitCny = await updateProfit();
+                if (btcProfitCny !== null) {
+                    speakProfit(btcProfitCny);
+                }
+                // 每5秒播报
+                setInterval(async () => {
+                    const btcProfitCny = await updateProfit();
+                    if (btcProfitCny !== null) {
+                        speakProfit(btcProfitCny);
+                    }
+                }, speechInterval);
             }
-        }, speechInterval);
+        });
 
         // 初始加载
         updateProfit();
     </script>
-<!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
 </body>
 
 </html>
