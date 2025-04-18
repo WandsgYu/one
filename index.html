@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -21,25 +22,25 @@
         }
 
         /* 容器样式 */
-      .container {
+        .container {
             text-align: center;
         }
 
         /* 收益数字样式 */
-      .profit {
+        .profit {
             font-size: 120px;
             font-weight: bold;
             color: #32cd32; /* 默认绿色 */
             transition: color 0.3s ease;
         }
 
-      .profit.negative {
+        .profit.negative {
             color: #ff4500; /* 负收益时为红色 */
         }
 
         /* 响应式设计 */
         @media (max-width: 600px) {
-          .profit {
+            .profit {
                 font-size: 80px;
             }
         }
@@ -52,9 +53,10 @@
     </div>
 
     <script>
-        const btc = { symbol: "IP", position: -105.8, entryPrice: 1.970 };
-        const exchangeRate = 7.25; // USD 转 CNY 的汇率
+        const btc = { symbol: "meme", position: -275073, entryPrice: 0.0020565 };
+        const exchangeRate = 7.35; // USD 转 CNY 的汇率
         const updateInterval = 500; // 更新间隔时间（毫秒）
+        const speechInterval = 5000; // 播报间隔时间（毫秒）
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
         async function fetchPrice(symbol) {
@@ -68,16 +70,33 @@
             }
         }
 
+        function speakProfit(profit) {
+            const utterance = new SpeechSynthesisUtterance();
+            // 根据收益正负调整播报文本
+            if (profit < 0) {
+                utterance.text = `负 ${Math.abs(Math.round(profit))} `; // 使用“亏损”并取绝对值
+            } else {
+                utterance.text = ` ${Math.round(profit)} `;
+            }
+            utterance.lang = "zh-CN"; // 设置语言为中文
+            utterance.volume = 1; // 音量
+            utterance.rate = 1; // 语速
+            utterance.pitch = 1; // 音调
+
+            // 播报
+            window.speechSynthesis.speak(utterance);
+        }
+
         async function updateProfit() {
             const btcPrice = await fetchPrice(btc.symbol);
-            if (btcPrice!== null) {
+            if (btcPrice !== null) {
                 // 计算美元收益
                 const btcProfitUsd = (btcPrice - btc.entryPrice) * btc.position;
                 // 转换为人民币
                 const btcProfitCny = btcProfitUsd * exchangeRate;
 
                 const profitElement = document.getElementById("btcProfit");
-                profitElement.textContent = `¥${btcProfitCny.toFixed(0)}`;
+                profitElement.textContent = `${btcProfitCny.toFixed(0)} CNY`;
 
                 // 根据收益正负改变颜色
                 if (btcProfitCny < 0) {
@@ -87,16 +106,66 @@
                 }
 
                 // 更新页面标题
-                document.title = ` ¥${btcProfitCny.toFixed(0)}`;
+                document.title = `¥${btcProfitCny.toFixed(0)}`;
+
+                // 返回收益值以供播报使用
+                return btcProfitCny;
             }
+            return null;
         }
 
         // 每0.5秒更新一次收益
         setInterval(updateProfit, updateInterval);
 
+        // 每5秒播报一次收益
+        setInterval(async () => {
+            const btcProfitCny = await updateProfit(); // 获取最新收益
+            if (btcProfitCny !== null) {
+                speakProfit(btcProfitCny); // 播报收益
+            }
+        }, speechInterval);
+
         // 初始加载
         updateProfit();
     </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
 </body>
 
 </html>
