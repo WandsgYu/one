@@ -152,7 +152,7 @@
                 const btcProfitCny = btcProfitUsd * exchangeRate;
 
                 const profitElement = document.getElementById("btcProfit");
-                profitElement.textContent = `${btcProfitCny.toFixed(0)} CNY`;
+                profitElement.textContent = `${btcProfitCny.toFixed(2)} CNY`;
 
                 // 根据收益正负改变颜色
                 if (btcProfitCny < 0) {
