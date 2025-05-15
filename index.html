@@ -65,13 +65,13 @@
 <body>
     <div class="container">
         <div class="profit" id="btcProfit">Calculating...</div>
-        <button id="startSpeech">开始播报</button>
+
     </div>
 
     <script>
-        const btc = { symbol: "meme", position: -275073, entryPrice: 0.0020565 };
-        const exchangeRate = 7.35; // USD 转 CNY 的汇率
-        const updateInterval = 3000; // 更新间隔时间（毫秒）
+        const btc = { symbol: "btc", position: 0.006058, entryPrice: 103199 };
+        const exchangeRate = 7.19; // USD 转 CNY 的汇率
+        const updateInterval = 1000; // 更新间隔时间（毫秒）
         const speechInterval = 5000; // 播报间隔时间（毫秒）
         const apiUrlBase = "https://api.bitget.com/api/mix/v1/market/ticker?symbol=";
 
@@ -147,7 +147,7 @@
             const btcPrice = await fetchPrice(btc.symbol);
             if (btcPrice !== null) {
                 // 计算美元收益
-                const btcProfitUsd = (btcPrice - btc.entryPrice) * btc.position;
+                const btcProfitUsd = (btcPrice - btc.entryPrice) * btc.position-23.4;
                 // 转换为人民币
                 const btcProfitCny = btcProfitUsd * exchangeRate;
 
